@@ -36,9 +36,11 @@ export function useCurrentLocation(options?: GeolocationOptions) {
   }, []);
 
   const getLocation = () => {
+    console.log("entra");
     if (location) {
       map?.setCenter(location);
       map?.panTo(location);
+      console.log("location", location);
     }
   };
 

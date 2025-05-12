@@ -2,9 +2,18 @@ import { create } from "zustand";
 import { Contador, Contadores, FetchContadores, UltimaLectura } from "./types";
 import { persist } from "zustand/middleware";
 
+interface Params {
+  zona_numero?: string;
+  estado?: string;
+}
+
 interface State {
+  isLoading: boolean;
+  setLoading: (value: boolean) => void;
+  isSuccess: boolean;
+  setSuccess: (value: boolean) => void;
   contadores: FetchContadores[];
-  fetchContadores: () => Promise<void>;
+  fetchContadores: (params?: Params) => Promise<void>;
   postLectureById: (
     id: number,
     lectura: number,
@@ -15,9 +24,10 @@ interface State {
   selectCounter: (counter: Contador) => void;
   errorsCounters: FetchContadores[];
   clearErrorsCounter: () => void;
+  syncData: () => Promise<void>;
+  downloadData: (params?: Params) => Promise<void>;
 }
 
-const url = "https://ouhy3iu4hy34y34hy3hy.rubenrc.dev/api/contadores";
 const options = {
   method: "GET",
   headers: {
@@ -29,21 +39,43 @@ export const useContadoresSotre = create<State>()(
   persist(
     (set, get) => {
       return {
+        isLoading: false,
+        setLoading: (value) => set({ isLoading: value }),
+        isSuccess: false,
+        setSuccess: (value) => set({ isLoading: value }),
         contadores: [],
         errorsCounters: [],
-        fetchContadores: async () => {
-          const res = await fetch(url, options);
+        fetchContadores: async (params) => {
+          const { setLoading, setSuccess } = get();
+          const query = new URLSearchParams();
+
+          if (params?.estado) query.append("estado", params.estado);
+          if (params?.zona_numero)
+            query.append("zona_numero", params.zona_numero);
+
+          setLoading(true);
+          const res = await fetch(
+            `https://ouhy3iu4hy34y34hy3hy.rubenrc.dev/api/contadores?${query.toString()}`,
+            options,
+          );
           const contadores = await res.json();
 
-          set({
-            contadores: contadores.map((item: Contador, index) => ({
-              ...item,
-              position: {
-                lat: Number(item.longitud),
-                lng: Number(item.latitud),
-              },
-            })),
-          });
+          if (res.ok) {
+            set({
+              contadores: contadores.map((item: Contador, index) => ({
+                ...item,
+                position: {
+                  lat: Number(item.longitud),
+                  lng: Number(item.latitud),
+                },
+              })),
+            });
+            setSuccess(true);
+            setLoading(false);
+          } else {
+            setSuccess(false);
+            setLoading(false);
+          }
         },
         postLectureById: async (id, lectura, consumo) => {
           const { contadores, checkCounter, errorsCounters } = get();
@@ -121,6 +153,33 @@ export const useContadoresSotre = create<State>()(
         },
         clearErrorsCounter: () => {
           set({ errorsCounters: [] });
+        },
+        syncData: async () => {
+          set({ contadores: [] });
+          await get().fetchContadores();
+        },
+        downloadData: async (params) => {
+          const { setLoading, setSuccess } = get();
+          const query = new URLSearchParams();
+
+          if (params?.estado) query.append("estado", params.estado);
+          if (params?.zona_numero)
+            query.append("zona_numero", params.zona_numero);
+
+          setLoading(true);
+          const res = await fetch(
+            `https://ouhy3iu4hy34y34hy3hy.rubenrc.dev/api/contadores?${query.toString()}`,
+            options,
+          );
+          const data = await res.json();
+          if (res.ok) {
+            setSuccess(true);
+            setLoading(false);
+            return data;
+          } else {
+            setSuccess(false);
+            setLoading(false);
+          }
         },
       };
     },

@@ -3,8 +3,9 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
-import { TextField } from "@mui/material";
+import { Divider, TextField } from "@mui/material";
 import { useContadoresSotre } from "../store/contdores";
+import CloseIcon from "@mui/icons-material/Close";
 
 const style = {
   position: "absolute",
@@ -19,7 +20,8 @@ const style = {
   p: 4,
   // Media query con breakpoints de MUI
   "@media (max-width:768px)": {
-    minWidth: "93.33%",
+    width: "85.33%",
+    minWidth: "85.33%",
     p: 2,
   },
 };
@@ -29,6 +31,7 @@ const styleClose = {
   top: "1rem",
   right: "1rem",
   cursor: "pointer",
+  color: "black",
 };
 
 export default function BasicModal({
@@ -38,10 +41,16 @@ export default function BasicModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const { selectedCounter, postLectureById } = useContadoresSotre(
+  const { selectedCounter, postLectureById, checkCounter } = useContadoresSotre(
     (store) => store,
   );
-  const [value, setValue] = useState<number>("");
+  const [value, setValue] = useState<string>("");
+
+  const handlePostLecture = () => {
+    postLectureById(Number(selectedCounter?.id), Number(value), Number(value));
+    setValue("");
+    onClose();
+  };
   return (
     <div>
       <Modal
@@ -59,14 +68,7 @@ export default function BasicModal({
           >
             {selectedCounter?.id} - {selectedCounter?.nombre_completo}
           </Typography>
-          <Typography
-            variant="body2"
-            color="error"
-            sx={styleClose}
-            onClick={onClose}
-          >
-            X Cerrar
-          </Typography>
+          <CloseIcon onClick={onClose} sx={styleClose} />
           <Box>
             <Typography
               variant="body1"
@@ -83,17 +85,31 @@ export default function BasicModal({
             variant="filled"
             fullWidth
             placeholder="Escribe la lectura del contador"
-            onChange={(e) => setValue(Number(e.target.value))}
+            onChange={(e) => setValue(e.target.value)}
             sx={{ mt: 2, mb: 5 }}
           />
-          <Button
-            variant="contained"
-            onClick={() =>
-              postLectureById(Number(selectedCounter?.id), value, value)
-            }
-          >
+          <Button variant="contained" onClick={() => handlePostLecture()}>
             Revisar Contador {selectedCounter?.id}
           </Button>
+          <Divider sx={{ my: 4 }} />
+          <Typography variant="h6" color="textPrimary">
+            Últimas lecturas:
+          </Typography>
+          {selectedCounter?.ultima_lectura?.map((item, index) => (
+            <Typography key={index} variant="body1" color="textPrimary">
+              <strong>{index}</strong>: {item?.lectura}
+            </Typography>
+          ))}
+          <Divider sx={{ my: 4 }} />
+          {/* {selectedCounter && (
+            <Button
+              disabled={selectedCounter?.estado === "POR_REVISAR"}
+              color="error"
+              onClick={() => checkCounter(selectedCounter?.id)}
+            >
+              Cambiar a no revisado
+            </Button>
+          )} */}
         </Box>
       </Modal>
     </div>

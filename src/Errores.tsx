@@ -85,7 +85,6 @@ function Errores() {
           </Table>
         </TableContainer>
       </Box>
-      <SimpleBottomNavigation />
     </>
   );
 }

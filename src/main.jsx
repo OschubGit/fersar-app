@@ -4,15 +4,17 @@ import "./index.css";
 import App from "./App.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import Errores from "./Errores.tsx";
+import MainLayout from "./layouts/MainLayout.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    Component: App,
+    // children: [{ index: true, Component: App }],
   },
   {
     path: "/errores",
-    element: <Errores />,
+    Component: Errores,
   },
 ]);
 
