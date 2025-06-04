@@ -17,7 +17,7 @@ interface State {
   postLectureById: (
     id: number,
     lectura: number,
-    consumo: number,
+    consumo: number
   ) => Promise<void>;
   checkCounter: (id: number) => Promise<void>;
   selectedCounter?: Contador;
@@ -56,7 +56,7 @@ export const useContadoresSotre = create<State>()(
           setLoading(true);
           const res = await fetch(
             `https://ouhy3iu4hy34y34hy3hy.rubenrc.dev/api/contadores?${query.toString()}`,
-            options,
+            options
           );
           const contadores = await res.json();
 
@@ -65,8 +65,8 @@ export const useContadoresSotre = create<State>()(
               contadores: contadores.map((item: Contador, index) => ({
                 ...item,
                 position: {
-                  lat: Number(item.longitud),
-                  lng: Number(item.latitud),
+                  lat: Number(item.latitud),
+                  lng: Number(item.longitud),
                 },
               })),
             });
@@ -93,7 +93,7 @@ export const useContadoresSotre = create<State>()(
                 lectura: String(lectura),
                 consumo: String(consumo),
               }),
-            },
+            }
           );
 
           if (res.ok) {
@@ -137,7 +137,9 @@ export const useContadoresSotre = create<State>()(
         },
         checkCounter: async (id) => {
           const res = await fetch(
-            `https://ouhy3iu4hy34y34hy3hy.rubenrc.dev/api/contadores/${String(id)}/revisado`,
+            `https://ouhy3iu4hy34y34hy3hy.rubenrc.dev/api/contadores/${String(
+              id
+            )}/revisado`,
             {
               method: "POST",
               headers: {
@@ -145,7 +147,7 @@ export const useContadoresSotre = create<State>()(
                 authorization:
                   "Bearer 2|QbbPfKjLHwTMOixGeMdn8Vkwpg7Ke0iXEG954tENe60b5370",
               },
-            },
+            }
           );
         },
         selectCounter: (counter) => {
@@ -169,7 +171,7 @@ export const useContadoresSotre = create<State>()(
           setLoading(true);
           const res = await fetch(
             `https://ouhy3iu4hy34y34hy3hy.rubenrc.dev/api/contadores?${query.toString()}`,
-            options,
+            options
           );
           const data = await res.json();
           if (res.ok) {
@@ -185,6 +187,6 @@ export const useContadoresSotre = create<State>()(
     },
     {
       name: "contadores",
-    },
-  ),
+    }
+  )
 );
